@@ -69,10 +69,10 @@ resource "aws_internet_gateway" "pluto_igw" {
 
 resource "aws_route_table" "pluto_public_rt" {
   vpc_id = aws_vpc.pluto_vpc.id
-  route = [ {
+  route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.pluto_igw.id
-  } ]
+  }
   tags = {
     "Name" = "pluto_public_rt"
   }
