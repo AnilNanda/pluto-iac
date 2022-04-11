@@ -107,3 +107,7 @@ resource "aws_route_table_association" "pluto_public_1b" {
   subnet_id      = aws_subnet.pluto_public_subnet_1b.id
   route_table_id = aws_route_table.pluto_public_rt.id
 }
+
+resource "aws_ecr_repository" "pluto_ecr" {
+name = "pluto-app"
+}
