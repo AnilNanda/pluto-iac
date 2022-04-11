@@ -50,3 +50,60 @@ resource "null_resource" "status" {
     command = "aws ec2 wait instance-status-ok --instance-ids ${aws_instance.linux_server.id} --region us-east-1"
   }
 }
+
+
+resource "aws_vpc" "pluto_vpc" {
+  cidr_block = "10.12.0.0/25"
+  instance_tenancy = "default"
+  tags = {
+    "Name" = "pluto-vpc"
+  }
+}
+
+resource "aws_internet_gateway" "pluto_igw" {
+    vpc_id = aws_vpc.pluto_vpc.id
+    tags = {
+      "Name" = "pluto-igw"
+    }
+}
+
+resource "aws_route_table" "pluto_public_rt" {
+  vpc_id = aws_vpc.pluto_vpc.id
+  route = [ {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.pluto_igw.id
+  } ]
+  tags = {
+    "Name" = "pluto_public_rt"
+  }
+}
+
+resource "aws_subnet" "pluto_public_subnet_1a" {
+    vpc_id = aws_vpc.pluto_vpc.id
+    cidr_block = "10.12.0.0/26"
+    availability_zone = "us-east-1a"
+    map_public_ip_on_launch = true
+    tags = {
+      "Name" = "pluto-public-1a"
+    }
+}
+
+resource "aws_subnet" "pluto_public_subnet_1b" {
+    vpc_id = aws_vpc.pluto_vpc.id
+    cidr_block = "10.12.0.64/26"
+    availability_zone = "us-east-1b"
+    map_public_ip_on_launch = true
+    tags = {
+      "Name" = "pluto-public-1b"
+    }
+}
+
+resource "aws_route_table_association" "pluto_public_1a" {
+  subnet_id      = aws_subnet.pluto_public_subnet_1a.id
+  route_table_id = aws_route_table.pluto_public_rt.id
+}
+
+resource "aws_route_table_association" "pluto_public_1b" {
+  subnet_id      = aws_subnet.pluto_public_subnet_1b.id
+  route_table_id = aws_route_table.pluto_public_rt.id
+}
