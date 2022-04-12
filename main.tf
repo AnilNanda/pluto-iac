@@ -129,6 +129,7 @@ resource "aws_ecr_repository" "pluto_ecr" {
 resource "aws_security_group" "jenkins_sg" {
   name        = "jenkins_sg"
   description = "Jenkins SG"
+  vpc_id = aws_vpc.pluto_vpc.id
   dynamic "ingress" {
     for_each = local.jenkins_ingress_rules
     content {
@@ -165,6 +166,8 @@ resource "aws_instance" "jenkins_server" {
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
   key_name               = aws_key_pair.deployer.key_name
+  disable_api_termination = true
+  subnet_id = aws_subnet.pluto_public_subnet_1a.id
   tags = {
     "Name" = "jenkins"
   }
